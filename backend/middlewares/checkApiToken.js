@@ -1,6 +1,4 @@
-const jwt = require('jsonwebtoken');
-
-const secretKey = process.env.API_TOKEN_SECRET || 'your_secret_key';
+const tokenService = require('../services/tokenService');
 
 function checkApiToken(req, res, next) {
   // Токен може передаватись через заголовок Authorization або x-api-token
@@ -16,12 +14,12 @@ function checkApiToken(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, secretKey);
+    const decoded = tokenService.verifyToken(token);
     // Збереження інформації про користувача в запиті для подальшого використання
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ error: 'Невірний API token' });
+    return res.status(403).json({ error: error.message });
   }
 }
 

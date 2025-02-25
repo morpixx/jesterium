@@ -1,14 +1,11 @@
-const userDao = require('../dao/userDAO');
+const userDao = require('../dao/userDao');
 const bcrypt = require('bcrypt');
+const tokenService = require('./tokenService');
 
 // Реєстрація нового користувача
 async function registerUser(login, password) {
-  if (typeof login !== 'string' || login.trim() === '') {
-    throw new Error('Login не може бути порожнім');
-  }
-  if (typeof password !== 'string' || password.trim() === '') {
-    throw new Error('Пароль не може бути порожнім');
-  }
+  // Валідація вхідних даних
+  validateUserInput(login, password);
 
   // Перевірка, чи існує користувач з таким логіном
   const existingUser = await userDao.getUserByLogin(login);
@@ -29,13 +26,9 @@ async function registerUser(login, password) {
 }
 
 // Аутентифікація користувача
-async function authenticateUser(login, password) {
-  if (typeof login !== 'string' || login.trim() === '') {
-    throw new Error('Login не може бути порожнім');
-  }
-  if (typeof password !== 'string' || password.trim() === '') {
-    throw new Error('Пароль не може бути порожнім');
-  }
+async function loginUser(login, password) {
+  // Валідація вхідних даних
+  validateUserInput(login, password);
 
   const user = await userDao.getUserByLogin(login);
   if (!user) {
@@ -48,7 +41,14 @@ async function authenticateUser(login, password) {
     throw new Error('Невірний пароль');
   }
 
-  return user;
+  // Генерація токена для авторизованого користувача
+  const token = tokenService.generateApiToken(user);
+  
+  // Повертаємо дані користувача та токен
+  return {
+    user: user.toJSON(),
+    token
+  };
 }
 
 // Отримання даних користувача за логіном
@@ -67,9 +67,19 @@ async function updateUserStatus(login, status) {
   return await userDao.updateUserStatus(login, status);
 }
 
+// Допоміжна функція для валідації вхідних даних
+function validateUserInput(login, password) {
+  if (typeof login !== 'string' || login.trim().length < 5) {
+    throw new Error('Login повинен бути рядком з мінімум 5 символів');
+  }
+  if (typeof password !== 'string' || password.length < 8) {
+    throw new Error('Password повинен бути рядком з мінімум 8 символів');
+  }
+}
+
 module.exports = {
   registerUser,
-  authenticateUser,
+  loginUser,
   getUserByLogin,
   updateUserStatus
 };
