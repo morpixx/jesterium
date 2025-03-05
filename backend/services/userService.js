@@ -2,10 +2,29 @@ const userDao = require('../dao/userDao');
 const bcrypt = require('bcrypt');
 const tokenService = require('./tokenService');
 
-// Реєстрація нового користувача
-async function registerUser(login, password) {
+// Допоміжна функція для валідації вхідних даних
+function validateUserInput(login, password) {
+  if (typeof login !== 'string' || login.trim().length < 5) {
+    throw new Error('Login повинен бути рядком з мінімум 5 символів');
+  }
+  if (typeof password !== 'string' || password.length < 8) {
+    throw new Error('Password повинен бути рядком з мінімум 8 символів');
+  }
+}
+
+// Допоміжна функція для валідації email
+function validateEmail(email) {
+  const emailRegex = /\S+@\S+\.\S+/;
+  if (typeof email !== 'string' || !emailRegex.test(email.trim())) {
+    throw new Error('Некоректний формат email');
+  }
+}
+
+// Реєстрація нового користувача з email
+async function registerUser(login, email, password) {
   // Валідація вхідних даних
   validateUserInput(login, password);
+  validateEmail(email);
 
   // Перевірка, чи існує користувач з таким логіном
   const existingUser = await userDao.getUserByLogin(login);
@@ -18,6 +37,7 @@ async function registerUser(login, password) {
   const newUser = {
     id: null,
     login: login.trim(),
+    email: email.trim(),
     password: hashedPassword,
     status: 'non-verified'
   };
@@ -65,16 +85,6 @@ async function updateUserStatus(login, status) {
     throw new Error('Неправильний статус користувача');
   }
   return await userDao.updateUserStatus(login, status);
-}
-
-// Допоміжна функція для валідації вхідних даних
-function validateUserInput(login, password) {
-  if (typeof login !== 'string' || login.trim().length < 5) {
-    throw new Error('Login повинен бути рядком з мінімум 5 символів');
-  }
-  if (typeof password !== 'string' || password.length < 8) {
-    throw new Error('Password повинен бути рядком з мінімум 8 символів');
-  }
 }
 
 module.exports = {

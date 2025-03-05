@@ -8,16 +8,16 @@ async function register(req, res) {
   try {
     const { login, password, email } = req.body;
     
-    // Реєстрація користувача
-    const newUser = await userService.registerUser(login, password);
+    // Реєстрація користувача (передаємо login, email та password)
+    const newUser = await userService.registerUser(login, email, password);
     
-    // Генерація коду верифікації
-    const generatedCode = generateRandomCode(6); // Використовуємо 6-значний код
+    // Генерація 6-значного коду верифікації
+    const generatedCode = generateRandomCode(6);
     
     // Збереження коду верифікації
     await verificationCodeService.createVerificationCode(login, generatedCode);
     
-    // Відправка коду на email
+    // Відправка коду на email (якщо email вказано)
     if (email) {
       await sendVerificationEmail(email, generatedCode);
     }
@@ -48,15 +48,14 @@ async function verifyEmail(req, res) {
     const { login, code } = req.body;
     const isVerified = await verificationCodeService.verifyCode(login, code);
     if (isVerified) {
-      // (Опціонально) оновлення статусу користувача після успішної верифікації
-      res.status(200).json({ 
-        success: true, 
-        message: 'Email успішно підтверджено' 
+      res.status(200).json({
+        success: true,
+        message: 'Email успішно підтверджено'
       });
     } else {
-      res.status(400).json({ 
-        success: false, 
-        message: 'Невірний код підтвердження' 
+      res.status(400).json({
+        success: false,
+        message: 'Невірний код підтвердження'
       });
     }
   } catch (error) {
@@ -67,7 +66,6 @@ async function verifyEmail(req, res) {
 // Контролер для отримання профілю користувача
 async function getProfile(req, res) {
   try {
-    // Припускаємо, що middleware авторизації додає об'єкт користувача в req.user
     if (!req.user) {
       return res.status(401).json({ error: 'Необхідна авторизація' });
     }
@@ -84,7 +82,6 @@ async function updateProfile(req, res) {
     if (!req.user || !req.user.login) {
       return res.status(401).json({ error: 'Необхідна авторизація' });
     }
-    // Логіка оновлення профілю (реалізацію оновлення впровадьте через userService)
     const updatedUser = await userService.updateUserProfile(req.user.login, { email });
     res.status(200).json({
       success: true,
