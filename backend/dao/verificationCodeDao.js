@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const { db } = require('../config/db');
 const VerificationCode = require('../models/VerificationCode');
 
 // Створення нового коду верифікації

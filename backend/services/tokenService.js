@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
-// Використовуємо конфігурацію замість прямого доступу до process.env
-const secretKey = process.env.API_TOKEN_SECRET || 'your_secret_key';
+// Замість process.env.API_TOKEN_SECRET використовуйте process.env.JWT_SECRET
+const secretKey = process.env.JWT_SECRET || 'your_jwt_secret';
 
 function generateApiToken(user) {
   // Формуємо payload із даними користувача

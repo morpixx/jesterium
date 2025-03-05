@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const { db } = require('../config/db');
 const WalletConnection = require('../models/WalletConnection');
 
 // Створення нового підключення гаманця

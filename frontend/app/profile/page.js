@@ -5,22 +5,25 @@ export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
 
-  // Для теста используем пример токена – в реальном случае его нужно получать через авторизацию
-  const token = 'sample-token-for-testing';
-
   async function fetchProfile() {
     try {
+      const token = localStorage.getItem("token");
+      console.log("Токен з localStorage:", token);
+      
       const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/users/profile', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       });
+      
       if (!res.ok) {
-        throw new Error('Failed to fetch profile');
+        const errData = await res.json();
+        throw new Error(errData.error || "Не вдалося завантажити профіль");
       }
+      
       const data = await res.json();
-      setProfile(data);
+      setProfile(data.user || data);
     } catch (err) {
       setError(err.message);
     }

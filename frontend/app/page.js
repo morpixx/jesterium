@@ -30,7 +30,10 @@ export default function Home() {
         throw new Error(errorData.error || "Login failed");
       }
       const data = await res.json();
-      // Після успішного входу перенаправляємо користувача в профіль
+      // Зберігаємо токен, отриманий від сервера
+      localStorage.setItem("token", data.token);
+      alert("Вхід успішний.");
+      // Автоматичне переключення на сторінку профілю
       router.push("/profile");
     } catch (err) {
       setError(err.message);

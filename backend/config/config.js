@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 // Перевірка наявності критичних змінних середовища
-const requiredEnvVars = ['API_TOKEN_SECRET', 'EMAIL_USER', 'EMAIL_PASS'];
+const requiredEnvVars = ['JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASS'];
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
@@ -19,7 +19,7 @@ module.exports = {
   },
   
   // Налаштування JWT
-  apiTokenSecret: process.env.API_TOKEN_SECRET,
+  apiTokenSecret: process.env.JWT_SECRET,
   
   // Налаштування електронної пошти
   email: {

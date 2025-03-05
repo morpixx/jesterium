@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { authLimiter } = require('../middlewares/rateLimitMiddleware');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
@@ -256,7 +257,7 @@ router.post('/verify-email', authLimiter, userController.verifyEmail);
  *                   type: string
  *                   example: Необхідна авторизація
  */
-router.get('/profile', userController.getProfile);
+router.get('/profile', authMiddleware, userController.getProfile);
 
 /**
  * @swagger
@@ -317,6 +318,6 @@ router.get('/profile', userController.getProfile);
  *                   type: string
  *                   example: Необхідна авторизація
  */
-router.put('/profile', userController.updateProfile);
+router.put('/profile', authMiddleware, userController.updateProfile);
 
 module.exports = router;
