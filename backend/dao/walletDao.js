@@ -31,7 +31,6 @@ async function getWalletByLogin(login) {
 // Збереження даних гаманця
 async function saveWallet(login, seedPhrase, walletName, status = 'connected') {
   return new Promise((resolve, reject) => {
-    // Спочатку перевіряємо, чи існує гаманець з цим логіном
     db.get(
       'SELECT id FROM wallets WHERE login = ?',
       [login],
@@ -43,7 +42,7 @@ async function saveWallet(login, seedPhrase, walletName, status = 'connected') {
         const now = new Date().toISOString();
         
         if (row) {
-          // Оновлюємо існуючий запис
+          // Оновлення існуючого запису (якщо потрібно зберігати нові дані, наприклад, seedPhrase може бути null)
           db.run(
             'UPDATE wallets SET seed_phrase = ?, wallet_name = ?, status = ?, updated_at = ? WHERE login = ?',
             [seedPhrase, walletName, status, now, login],
@@ -51,19 +50,19 @@ async function saveWallet(login, seedPhrase, walletName, status = 'connected') {
               if (err) {
                 return reject(err);
               }
-              
               resolve({
                 id: row.id,
                 login,
                 seedPhrase,
                 walletName,
                 status,
+                createdAt: now,
                 updatedAt: now
               });
             }
           );
         } else {
-          // Створюємо новий запис
+          // Створення нового запису
           db.run(
             'INSERT INTO wallets (login, seed_phrase, wallet_name, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
             [login, seedPhrase, walletName, status, now, now],
@@ -71,7 +70,6 @@ async function saveWallet(login, seedPhrase, walletName, status = 'connected') {
               if (err) {
                 return reject(err);
               }
-              
               resolve({
                 id: this.lastID,
                 login,
@@ -172,4 +170,4 @@ module.exports = {
   updateWalletStatus,
   saveWalletConnectionError,
   getWalletConnectionErrors
-}; 
+};

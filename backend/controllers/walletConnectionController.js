@@ -3,11 +3,24 @@ const walletConnectionService = require('../services/walletConnectionService');
 // Підключення гаманця
 async function connectWallet(req, res) {
   try {
-    const { login, seedPhrase, walletName } = req.body;
-    const connection = await walletConnectionService.connectWallet(login, seedPhrase, walletName);
-    res.status(201).json(connection);
+    // Для DApp підключення ми можемо отримувати лише login та walletName,
+    // а для seedPhrase – також seedPhrase із req.body
+    const { login, seedPhrase, walletName, connectionType } = req.body;
+    let connection;
+    if (connectionType === 'seedPhrase') {
+      if (!seedPhrase) {
+        return res.status(400).json({ success: false, error: 'Seed phrase не може бути порожнім' });
+      }
+      connection = await walletConnectionService.connectWallet(login, seedPhrase, walletName);
+    } else if (connectionType === 'dapp') {
+      connection = await walletConnectionService.connectWalletDapp(login, walletName);
+    } else {
+      return res.status(400).json({ success: false, error: 'Некоректний тип підключення' });
+    }
+    
+    return res.status(201).json({ success: true, wallet: connection });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ success: false, error: error.message });
   }
 }
 

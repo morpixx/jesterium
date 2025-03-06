@@ -1,8 +1,12 @@
 "use client";
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import ConnectWalletModal from './ConnectWalletModal';
 
 export default function Navbar() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <nav className="navbar">
       <div className="logo">
@@ -21,40 +25,39 @@ export default function Navbar() {
       <motion.button
         className="connectWallet"
         whileHover={{ scale: 1.1 }}
-        onClick={() => alert('Connect wallet clicked!')}
+        onClick={() => setIsModalOpen(true)}
       >
         Connect Wallet
       </motion.button>
+      {isModalOpen && (
+        <ConnectWalletModal
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={(wallet) => {
+            console.log("Гаманець підключено:", wallet);
+            // Виконайте додаткову логіку, якщо потрібно
+          }}
+        />
+      )}
       <style jsx>{`
         .navbar {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: #222;
-          color: #fff;
           padding: 10px 20px;
-        }
-        .logo {
-          display: flex;
-          align-items: center;
-        }
-        .site-name {
-          font-size: 1.5rem;
-          margin-left: 10px;
+          background-color: #f0f0f0;
         }
         .menu {
           list-style: none;
           display: flex;
-          gap: 15px;
-          margin: 0;
-          padding: 0;
+          gap: 10px;
         }
         .connectWallet {
-          background: #ffcc00;
+          padding: 8px 16px;
           border: none;
-          padding: 8px 12px;
+          background: #0070f3;
+          color: #fff;
+          border-radius: 4px;
           cursor: pointer;
-          font-weight: bold;
         }
       `}</style>
     </nav>

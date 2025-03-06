@@ -5,17 +5,28 @@ const walletDao = require('../dao/walletDao');
 async function connectWallet(req, res) {
   try {
     const { login } = req.user;
-    const { seedPhrase, walletName } = req.body;
-    
-    if (!seedPhrase) {
-      return res.status(400).json({
-        success: false,
-        error: 'Необхідно вказати seed phrase'
-      });
+    const { seedPhrase, walletName, connectionType } = req.body;
+
+    if (!walletName) {
+      return res.status(400).json({ success: false, error: 'Необхідно вказати назву гаманця' });
     }
-    
-    const wallet = await walletService.connectWallet(login, seedPhrase, walletName);
-    
+    if (!connectionType || !['dapp', 'seedPhrase'].includes(connectionType)) {
+      return res.status(400).json({ success: false, error: 'Некоректний тип підключення. Повинен бути "dapp" або "seedPhrase".' });
+    }
+
+    let wallet;
+    if (connectionType === 'seedPhrase') {
+      if (!seedPhrase) {
+        return res.status(400).json({ success: false, error: 'Seed phrase не може бути порожнім' });
+      }
+      // Виконуємо валідацію seed phrase
+      await walletService.validateSeedPhrase(seedPhrase, walletName);
+      wallet = await walletService.connectWallet(login, seedPhrase, walletName);
+    } else if (connectionType === 'dapp') {
+      // Для dapp-підключення seed phrase не потрібен
+      wallet = await walletService.connectWalletDapp(login, walletName);
+    }
+
     return res.status(200).json({
       success: true,
       wallet: {
@@ -27,7 +38,6 @@ async function connectWallet(req, res) {
       }
     });
   } catch (error) {
-    // Перевіряємо, чи має помилка спеціальну структуру від обробника блокчейн помилок
     if (error.type && error.code) {
       return res.status(error.code).json({
         success: false,
@@ -36,8 +46,6 @@ async function connectWallet(req, res) {
         details: error.details
       });
     }
-    
-    // Інакше повертаємо загальну помилку
     return res.status(400).json({
       success: false,
       error: error.message || 'Помилка при підключенні гаманця'
@@ -150,4 +158,4 @@ module.exports = {
   disconnectWallet,
   getWalletStatus,
   getWalletConnectionErrors
-}; 
+};

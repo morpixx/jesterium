@@ -16,6 +16,18 @@ async function getUserByLogin(login) {
   });
 }
 
+// Додавання реалізації отримання користувача за email
+async function getUserByEmail(email) {
+  return new Promise((resolve, reject) => {
+    db.get("SELECT * FROM clients WHERE email = ?", [email.trim()], (err, row) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(row ? User.fromDb(row) : null);
+    });
+  });
+}
+
 // Створення нового користувача (оновлено для збереження email)
 function createUser(userData) {
   return new Promise((resolve, reject) => {
@@ -25,7 +37,8 @@ function createUser(userData) {
       if (err) {
         return reject(err);
       }
-      resolve({ id: this.lastID, login, email, status });
+      userData.id = this.lastID;
+      resolve(userData);
     });
   });
 }
@@ -99,6 +112,7 @@ async function authenticateUser(login, password) {
 
 module.exports = { 
   getUserByLogin, 
+  getUserByEmail, // додавання експорту функції getUserByEmail
   createUser, 
   updateUserStatus, 
   registerUser, 

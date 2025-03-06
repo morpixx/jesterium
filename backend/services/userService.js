@@ -23,17 +23,18 @@ function validateEmail(email) {
 
 // Реєстрація нового користувача з email
 async function registerUser(login, email, password) {
-  // Валідація вхідних даних
+  // Проведіть валідацію та перевірки унікальності
   validateUserInput(login, password);
   validateEmail(email);
 
-  // Перевірка, чи існує користувач з таким логіном
   const existingUser = await userDao.getUserByLogin(login);
   if (existingUser) {
     throw new Error('Користувач з таким логіном вже існує');
   }
-
-  // Хешування пароля для безпечного зберігання
+  const existingUserByEmail = await userDao.getUserByEmail(email);
+  if (existingUserByEmail) {
+    throw new Error('Користувач з таким email вже існує');
+  }
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = {
     id: null,
@@ -42,7 +43,6 @@ async function registerUser(login, email, password) {
     password: hashedPassword,
     status: 'non-verified'
   };
-
   return await userDao.createUser(newUser);
 }
 

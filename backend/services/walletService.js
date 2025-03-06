@@ -33,22 +33,13 @@ async function isWalletConnected(login) {
 // Підключення гаманця
 async function connectWallet(login, seedPhrase, walletName) {
   try {
-    // Перевірка seed phrase у блокчейні
-    await validateSeedPhrase(seedPhrase, walletName);
-    
-    // Збереження даних гаманця
+    // Валідація seed phrase вже виконана в контролері
     return await walletDao.saveWallet(login, seedPhrase, walletName, 'connected');
   } catch (error) {
-    // Обробка помилок блокчейну
     const blockchainType = getBlockchainTypeByWallet(walletName);
     const processedError = handleBlockchainError(error, blockchainType);
-    
     console.error(`Помилка підключення гаманця [${processedError.type}]:`, processedError.message);
-    
-    // Збереження інформації про невдале підключення з деталями помилки
-    await walletDao.saveWalletConnectionError(login, walletName, processedError.type, processedError.message);
-    
-    // Повторно викидаємо помилку з детальною інформацією
+    // Можна зберігати інформацію про помилку підключення (як у вашій логіці)
     throw {
       message: processedError.message,
       type: processedError.type,
@@ -56,6 +47,13 @@ async function connectWallet(login, seedPhrase, walletName) {
       details: processedError.details
     };
   }
+}
+
+// Новий метод для Dapp-підключення (без seed phrase)
+async function connectWalletDapp(login, walletName) {
+  // Для Dapp, на стороні клієнта буде виконано підключення через розширення/модуль,
+  // тому ми просто оновлюємо/створюємо запис у БД без seed phrase.
+  return await walletDao.saveWallet(login, null, walletName, 'connected');
 }
 
 // Валідація seed phrase
@@ -214,7 +212,8 @@ async function disconnectWallet(login) {
 module.exports = {
   isWalletConnected,
   connectWallet,
+  connectWalletDapp, // додано новий метод
   getWalletBalance,
   disconnectWallet,
   validateSeedPhrase
-}; 
+};

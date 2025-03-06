@@ -36,11 +36,12 @@ const userRoutes = require('./routes/userRoutes');
 const verificationCodeRoutes = require('./routes/verificationCodeRoutes');
 const walletConnectionRoutes = require('./routes/walletConnectionRoutes');
 const promoCodeRoutes = require('./routes/promoCodeRoutes');
+const walletRoutes = require('./routes/walletRoutes');
 
 // Використання маршрутів
 app.use('/api/users', userRoutes);
 app.use('/api/verification-codes', verificationCodeRoutes);
-app.use('/api/wallet-connections', walletConnectionRoutes);
+app.use('/api/wallet-connections', walletRoutes);
 app.use('/api/promo-codes', promoCodeRoutes);
 
 // Обробка помилок

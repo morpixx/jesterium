@@ -1,4 +1,4 @@
-const { sendVerificationEmail } = require('../utils/emailService');
+const { sendVerificationCode } = require('../utils/emailService');
 const { generateRandomCode } = require('../services/codeGenerator'); // чи інший шлях
 const verificationCodeService = require('../services/verificationCodeService');
 

@@ -1,5 +1,5 @@
 const userService = require('../services/userService');
-const { sendVerificationEmail } = require('../utils/emailService');
+const { sendVerificationCode } = require('../utils/emailService'); // використовується sendVerificationCode
 const { generateRandomCode } = require('../utils/codeGenerator');
 const verificationCodeService = require('../services/verificationCodeService');
 
@@ -19,11 +19,11 @@ async function register(req, res) {
     
     // Відправка коду на email (якщо email вказано)
     if (email) {
-      await sendVerificationEmail(email, generatedCode);
+      await sendVerificationCode(email, generatedCode);
     }
     
     res.status(201).json({
-      message: 'Користувача зареєстровано. Перевірте вашу пошту для верифікації.',
+      message: 'Профіль створено. Перевірте вашу пошту для отримання коду верифікації.',
       user: newUser
     });
   } catch (error) {
@@ -48,6 +48,8 @@ async function verifyEmail(req, res) {
     const { login, code } = req.body;
     const isVerified = await verificationCodeService.verifyCode(login, code);
     if (isVerified) {
+      // оновлюємо статус користувача до 'verified'
+      await userService.updateUserStatus(login, 'verified');
       res.status(200).json({
         success: true,
         message: 'Email успішно підтверджено'
@@ -59,7 +61,7 @@ async function verifyEmail(req, res) {
       });
     }
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    res.status(400).json({ error: error.message });
   }
 }
 

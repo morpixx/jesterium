@@ -35,11 +35,12 @@ const initDB = () => {
     
     CREATE TABLE IF NOT EXISTS wallet_connections (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      seed_phrase TEXT NOT NULL,
-      status TEXT NOT NULL CHECK (status IN ('connected', 'not connected')),
       login TEXT NOT NULL,
-      wallet_name TEXT,
-      FOREIGN KEY (login) REFERENCES clients(login)
+      seed_phrase TEXT,  -- прибрано NOT NULL
+      wallet_name TEXT NOT NULL,
+      status TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
     
     CREATE TABLE IF NOT EXISTS promo_codes (

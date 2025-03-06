@@ -1,4 +1,5 @@
 const verificationCodeService = require('../services/verificationCodeService');
+const userService = require('../services/userService');
 
 // Створення нового коду верифікації
 async function createVerificationCode(req, res) {
@@ -15,8 +16,11 @@ async function createVerificationCode(req, res) {
 async function verifyCode(req, res) {
   try {
     const { login, inputtedCode } = req.body;
-    const result = await verificationCodeService.verifyCode(login, inputtedCode);
-    res.status(200).json(result);
+    // Перевірка коду
+    await verificationCodeService.verifyCode(login, inputtedCode);
+    // Оновлення статусу користувача до "verified"
+    await userService.updateUserStatus(login, 'verified');
+    res.status(200).json({ message: 'Верифікація пройшла успішно' });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
