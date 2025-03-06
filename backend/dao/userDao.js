@@ -3,14 +3,15 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
 // Отримання користувача за логіном
-function getUserByLogin(login) {
+async function getUserByLogin(login) {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT * FROM clients WHERE login = ?';
-    db.get(sql, [login], (err, row) => {
+    db.get("SELECT * FROM clients WHERE login = ?", [login], (err, row) => {
       if (err) {
         return reject(err);
       }
-      resolve(User.fromDb(row));
+      // Якщо використовується модель User, перетворіть рядок за допомогою методу fromDb
+      if (!row) return resolve(null);
+      return resolve(User.fromDb(row));
     });
   });
 }

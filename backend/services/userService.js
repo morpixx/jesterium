@@ -1,6 +1,7 @@
 const userDao = require('../dao/userDao');
 const bcrypt = require('bcrypt');
 const tokenService = require('./tokenService');
+const { User } = require('../models'); // імпортування моделі ORM
 
 // Допоміжна функція для валідації вхідних даних
 function validateUserInput(login, password) {
@@ -76,7 +77,12 @@ async function getUserByLogin(login) {
   if (typeof login !== 'string' || login.trim() === '') {
     throw new Error('Login не може бути порожнім');
   }
-  return await userDao.getUserByLogin(login);
+
+  const user = await userDao.getUserByLogin(login);
+  if (!user) {
+    throw new Error('Користувача з таким логіном не знайдено');
+  }
+  return user;
 }
 
 // Оновлення статусу користувача (наприклад, після верифікації)

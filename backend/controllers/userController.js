@@ -69,7 +69,9 @@ async function getProfile(req, res) {
     if (!req.user) {
       return res.status(401).json({ error: 'Необхідна авторизація' });
     }
-    res.status(200).json({ success: true, user: req.user });
+    // Отримати повну інформацію користувача з бази даних, включаючи email
+    const user = await userService.getUserByLogin(req.user.login);
+    res.status(200).json({ success: true, user });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
